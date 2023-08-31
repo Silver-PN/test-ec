@@ -17,8 +17,11 @@ use App\Http\Controllers\UserController;
 Route::get('/users', [UserController::class, 'show']);
 Route::get('/users/create', [UserController::class, 'create']);
 Route::get('/users/{userId}/qrcode', [UserController::class, 'generateQrCode']);
+Route::get('/status', [UserController::class, 'showStatus']);
+
 Route::post('/login', [UserController::class, 'login']);
 Route::post('/update-user/{id}', [UserController::class, 'update']);
+
 
 Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();

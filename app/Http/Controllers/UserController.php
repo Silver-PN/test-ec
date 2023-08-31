@@ -26,6 +26,16 @@ class UserController extends Controller
         // paginate de tao phan trang
         return response()->json($users);
     }
+    public function showStatus()
+    {
+        $users = User::join('users_status', 'users.status_id', '=', 'users_status.id')
+            ->select(
+                'users_status.id as id',
+                'users_status.name as status'
+            )->get();
+        // paginate de tao phan trang
+        return response()->json($users);
+    }
     public function create()
     {
         $users_status = \DB::table("users_status")
@@ -80,10 +90,10 @@ class UserController extends Controller
         if (Auth::attempt($credentials)) {
             // Đăng nhập thành công
             $user = Auth::user();
+            $lastLogin = $user->login_at;
             $user->login_at = now(); // now() trả về thời gian hiện tại
             $user->save();
-
-            return response()->json(['message' => 'Đăng nhập thành công', 'user' => $user]);
+            return response()->json(['message' => 'Đăng nhập thành công', 'user' => $user, 'lastLogin' => $lastLogin]);
         } else {
             // Đăng nhập thất bại
             return response()->json(['message' => 'Đăng nhập thất bại'], 401);
