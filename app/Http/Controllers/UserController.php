@@ -28,14 +28,13 @@ class UserController extends Controller
     }
     public function showStatus()
     {
-        $users = User::join('users_status', 'users.status_id', '=', 'users_status.id')
-            ->select(
-                'users_status.id as id',
-                'users_status.name as status'
-            )->get();
-        // paginate de tao phan trang
-        return response()->json($users);
+        $userStatuses = \DB::table('users_status')
+            ->select('id', 'name as status')
+            ->get();
+
+        return response()->json($userStatuses);
     }
+
     public function create()
     {
         $users_status = \DB::table("users_status")
