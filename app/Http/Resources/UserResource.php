@@ -23,7 +23,7 @@ class UserResource extends JsonResource
         return [
             'Tài Khoản' => $this->username,
             'Tên' => $this->name,
-            'Thời gian đăng nhập' => date('d/m/Y', strtotime($this->login_at)),
+            'LoginTime:' => date('d/m/Y', strtotime($this->login_at)),
             'ID' => $this->id,
             'Email' => $this->email,
             'Phòng Ban' => $this->department_name,

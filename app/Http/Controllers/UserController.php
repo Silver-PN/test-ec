@@ -23,14 +23,26 @@ class UserController extends Controller
         foreach ($users as $user) {
             $user->department_name = $user->department->name;
             $user->status_name = $user->userStatus->name;
-            $user->makeHidden(['department', 'userStatus', 'password']);
+            $user->makeHidden(['department', 'userStatus']);
         }
-        return response()->json($users);
+        return $users;
     }
     public function showStatus()
     {
         $userStatuses = UserStatus::select('id', 'name')->get();
         return response()->json($userStatuses);
+    }
+    public function showListStatusUsers()
+    {
+        $listUser = UserStatus::with('users')->get();
+        return response()->json($listUser);
+
+    }
+    public function showListDepartmentUsers()
+    {
+        $listUser = Department::with('users')->get();
+        return response()->json($listUser);
+
     }
 
     public function create()
@@ -45,26 +57,13 @@ class UserController extends Controller
     }
     public function generateQrCode($userId)
     {
-        // $user = \DB::table("users")
-        //     ->where('users.id', '=', $userId)
-        //     ->join('departments', 'users.department_id', '=', 'departments.id')
-        //     ->join('users_status', 'users.status_id', '=', 'users_status.id')
-        //     ->select(
-        //         "users.username as Tài Khoản",
-        //         "users.name as Tên",
-        //         \DB::raw('DATE_FORMAT(users.login_at, "%d/%m/%Y") as Time'),
-        //         "users.id as ID",
-        //         "users.email",
-        //         'departments.name as Phòng Ban',
-        //         'users_status.name as Trạng Thái'
-        //     )
-        //     ->get();
+
         $user = User::with(['department', 'userStatus'])->find($userId);
         $user->department_name = $user->department->name;
         $user->status_name = $user->userStatus->name;
         $userResource = new UserResource($user);
         $userData = $userResource->qrCode(request());
-        return response()->json(new UserResource($userData));
+        return $userData;
 
     }
 
@@ -73,14 +72,12 @@ class UserController extends Controller
         $credentials = $request->only('username', 'password');
 
         if (Auth::attempt($credentials)) {
-            // Đăng nhập thành công
             $user = Auth::user();
             $lastLogin = $user->login_at;
-            $user->login_at = now(); // now() trả về thời gian hiện tại
+            $user->login_at = now();
             $user->save();
             return response()->json(['message' => 'Đăng nhập thành công', 'user' => $user, 'lastLogin' => $lastLogin]);
         } else {
-            // Đăng nhập thất bại
             return response()->json(['message' => 'Đăng nhập thất bại'], 401);
         }
 
@@ -92,15 +89,9 @@ class UserController extends Controller
     public function update(Request $request, $userId)
     {
         $user = User::findOrFail($userId);
-
-        // Lấy dữ liệu từ request và cập nhật vào user
         $user->name = $request->input('name');
         $user->email = $request->input('email');
-        // Cập nhật các trường khác tương tự
-
-        // Lưu các thay đổi
         $user->save();
-
         return response()->json(['message' => 'Cập nhật thông tin người dùng thành công']);
     }
     public function uploadFile(Request $request)
@@ -128,7 +119,6 @@ class UserController extends Controller
         $uploadedFile->move($storagePath, $filename);
 
         $user = User::findOrFail($idUser);
-
         $user->avatar = $filename;
         $user->save();
         return response()->json("Tệp tin đã được tải lên thành công", 200);

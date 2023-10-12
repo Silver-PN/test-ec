@@ -15,7 +15,8 @@ class DepartmentsSeeder extends Seeder
     public function run()
     {
         \DB::table("departments")->insert([
-            "name" => "Quản trị"
+            ["name" => "Quản trị"],
+            ["name" => "Nhân sự"]
         ]);
     }
 }
